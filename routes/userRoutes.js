@@ -14,6 +14,7 @@ const {
     updateUser,
     deleteUser,
     updateMe,
+    deleteMe,
 } = require('../controllers/userController');
 const router = express.Router();
 
@@ -23,6 +24,7 @@ router.post('/forgotPassword', forgotPassword);
 router.patch('/resetPassword/:token', resetPassword);
 router.patch('/updatePassword', auth, updatePassword);
 router.patch('/updateMe', auth, updateMe);
+router.delete('/deleteMe', auth, deleteMe);
 
 router.route('/').get(getAllUsers).post(addUser);
 router.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);

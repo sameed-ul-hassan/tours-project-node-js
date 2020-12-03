@@ -12,16 +12,24 @@ const generateToken = (id) => {
     });
 };
 
+const cookieOptions = {
+    expires: new Date(
+        Date.now() + process.env.JWT_COOKIE_EXPIRE_IN * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+};
+
+if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+
 const createAndSendToken = (user, code, res) => {
     const token = generateToken(user._id);
+    // send JWT token via cookie
+    res.cookie('token', token, cookieOptions);
     res.status(code).json({
         status: 'success',
         token,
         data: {
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
+            user,
         },
     });
 };
@@ -34,6 +42,7 @@ exports.signUp = asynHandler(async(req, res, next) => {
         passwordConfirm: req.body.passwordConfirm,
         role: req.body.role,
     });
+    newUser.password = undefined;
 
     createAndSendToken(newUser, 200, res);
 });
