@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const AppError = require('../utils/appError');
 const asynHandler = require('../utils/asynHandler');
+const handlerFactory = require('./handlerFactory');
 
 const filterObj = (body, ...fields) => {
     const newBody = {};
@@ -11,24 +12,6 @@ const filterObj = (body, ...fields) => {
     return newBody;
 };
 
-exports.getAllUsers = asynHandler(async(req, res) => {
-    const users = await User.find({});
-    res.status(200).json({
-        status: 'success',
-        results: users.length,
-        data: {
-            users,
-        },
-    });
-});
-
-exports.getUser = (req, res) => {
-    res.status(200).json({
-        status: 'fail',
-        message: 'Not defined',
-    });
-};
-
 exports.addUser = (req, res) => {
     res.status(200).json({
         status: 'fail',
@@ -36,19 +19,13 @@ exports.addUser = (req, res) => {
     });
 };
 
-exports.updateUser = (req, res) => {
-    res.status(200).json({
-        status: 'fail',
-        message: 'Not defined',
-    });
-};
+exports.getAllUsers = handlerFactory.getAll(User);
 
-exports.deleteUser = (req, res) => {
-    res.status(200).json({
-        status: 'fail',
-        message: 'Not defined',
-    });
-};
+exports.getUser = handlerFactory.getOne(User);
+
+exports.updateUser = handlerFactory.updateOne(User);
+
+exports.deleteUser = handlerFactory.deleteOne(User);
 
 exports.updateMe = asynHandler(async(req, res, next) => {
     if (req.body.password || req.body.passwordConfirm)
@@ -75,3 +52,8 @@ exports.deleteMe = asynHandler(async(req, res, next) => {
         data: null,
     });
 });
+
+exports.getMe = (req, res, next) => {
+    req.params.id = req.user.id;
+    next();
+};
